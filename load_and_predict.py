@@ -3,24 +3,26 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array, array_to_img
-from tensorflow.keras.applications.inception_v3 import preprocess_input
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+# from tensorflow.keras.applications.inception_v3 import preprocess_input
 
 # Кількість зразків для передбачення і візуалізації
-NUM_SAMPLES = 50  # ← змінюй це число для 30, 50, 100 і т.д.
+NUM_SAMPLES = 10  # ← змінюй це число для 30, 50, 100 і т.д.
 
 # Завантаження моделі
 print("[INFO] Завантаження моделі...")
 model = load_model('digit_recognizer_model.h5')
 print("[INFO] Модель успішно завантажена.")
 
-# Завантаження MNIST
+# Завантаження MNIST - еталону порівняльного аналізу моделей класифікацій зображень
 (_, _), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 # Функція обробки
 def preprocess_mnist(images):
     processed = []
     for img in images:
-        img_rgb = array_to_img(np.stack([img]*3, axis=-1)).resize((75, 75))
+        img_rgb = (array_to_img(np.stack([img]*3, axis=-1))
+                   .resize((96, 96))) # квадратні розміри зображення для MobileNetV2
         img_arr = img_to_array(img_rgb)
         img_arr = preprocess_input(img_arr)
         processed.append(img_arr)

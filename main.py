@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+# from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
 from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_input
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
@@ -18,13 +19,13 @@ print("[INFO] Завантаження датасету MNIST...")
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 print(f"[INFO] MNIST завантажено: {x_train.shape[0]} тренувальних прикладів, {x_test.shape[0]} тестових.")
 
-# Перетворюємо 28x28 → 75x75 RGB + нормалізація
+# Перетворюємо 28x28 → 96x96 RGB + нормалізація
 def preprocess_mnist(images):
     processed = []
     for img in tqdm(images, desc=Fore.GREEN + "Обробка зображень"):
-        img_rgb = array_to_img(np.stack([img]*3, axis=-1)).resize((75, 75))  # робимо 3 канали + зміна розміру
+        img_rgb = array_to_img(np.stack([img]*3, axis=-1)).resize((96, 96))  # робимо 3 канали + зміна розміру
         img_arr = img_to_array(img_rgb)  # переводимо у масив numpy
-        img_arr = preprocess_input(img_arr)  # нормалізація як для InceptionV3
+        img_arr = preprocess_input(img_arr)  # нормалізація як для MobileNetV2
         processed.append(img_arr)
     return np.array(processed)
 
@@ -35,9 +36,9 @@ print("[INFO] Початок обробки тестового набору...")
 x_test_resized = preprocess_mnist(x_test)
 print("[INFO] Обробка завершена.")
 
-# Завантажуємо InceptionV3 без верхніх (класифікаційних) шарів
-print("[INFO] Завантаження базової моделі InceptionV3...")
-base_model = InceptionV3(include_top=False, input_tensor=Input(shape=(75, 75, 3)), weights='imagenet')
+# Завантажуємо MobileNetV2 без верхніх (класифікаційних) шарів
+print("[INFO] Завантаження базової моделі MobileNetV2...")
+base_model = InceptionV3(include_top=False, input_tensor=Input(shape=(96, 96, 3)), weights='imagenet')
 base_model.trainable = False  # заморожуємо ваги
 
 # Додаємо власні шари класифікації
@@ -66,7 +67,8 @@ image = x_test[i]
 true_label = y_test[i]
 
 # Підготовка вхідних даних для моделі
-img_rgb = array_to_img(np.stack([image]*3, axis=-1)).resize((75, 75))
+img_rgb = (array_to_img(np.stack([image]*3, axis=-1))
+           .resize((96, 96))) # квадратні розміри зображення для MobileNetV2
 input_tensor = preprocess_input(img_to_array(img_rgb))
 input_tensor = np.expand_dims(input_tensor, axis=0)  # додавання batch-виміру
 
