@@ -1,8 +1,8 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-# from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
-from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_input
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
+# from tensorflow.keras.applications.inception_v3 import InceptionV3, preprocess_input
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Input
 from tensorflow.keras.preprocessing.image import img_to_array, array_to_img
@@ -38,7 +38,7 @@ print("[INFO] Обробка завершена.")
 
 # Завантажуємо MobileNetV2 без верхніх (класифікаційних) шарів
 print("[INFO] Завантаження базової моделі MobileNetV2...")
-base_model = InceptionV3(include_top=False, input_tensor=Input(shape=(96, 96, 3)), weights='imagenet')
+base_model = MobileNetV2(include_top=False, input_tensor=Input(shape=(96, 96, 3)), weights='imagenet')
 base_model.trainable = False  # заморожуємо ваги
 
 # Додаємо власні шари класифікації
